@@ -1,8 +1,11 @@
 "testando\'"
+"testando\"
 "testando\'a"
 "testando'"
 "testando'
+"testando	\'"
 "'" aa
+'\'abc
 11111111111
 56a
 $$

@@ -56,7 +56,7 @@ char *nextElemento(char entrada[], int *nextChar) {
                 break;
 
             case 39: // aspas simples '
-                if (elemento[0] == 0 || elemento[0] == 34){
+                if (elemento[0] == 0 || elemento[0] == 34 || entrada[(*nextChar) - 2] == '\\'){
                     append(elemento, c);
                     c = entrada[(*nextChar)++];
                 } else if (elemento[0] == 39){
@@ -68,7 +68,7 @@ char *nextElemento(char entrada[], int *nextChar) {
                 break;
 
             case 34: // aspas duplas "
-                if (elemento[0] == 0 || elemento[0] == 39){
+                if (elemento[0] == 0 || elemento[0] == 39 || entrada[(*nextChar) - 2] == '\\'){
                     append(elemento, c);
                     c = entrada[(*nextChar)++];
                 } else if (elemento[0] == 34){
@@ -88,7 +88,48 @@ char *nextElemento(char entrada[], int *nextChar) {
     return elemento;
 }
 
+void checkInside (char e[], int borda, int line){
+    int i;
+    int length =  (int) strlen(e);
+    char aux[500];
+    if (borda == 1){
+        if (length == 2)
+            printErro(e, line);
+        else   
+            if (e[0] == '\'' && (length > 4 || (length > 3 && e[1] != '\\')))
+                printErro(e, line);
+        else
+            for (i == 0; i < length; i++){
+                if (e[i] == '\\' && e[i+1] != 't' && e[i+1] != 'n' && e[i+1] != '\\' && e[i+1] != '\'' && e[i+1] != '\"' && e[i+1] != '\"'){
+                    // "dsfs\dfs"
+                    aux = strncpy(aux, e[i], 2);
+                    aux[2] = 0;
+                    printErro(aux, line);
+                } else if ((e[i] == '\'' || e[i] == '\"') && e[i - 1] != '\\'){ // "adas'das"
+                    printErro(e[i], line);
+                }
+            }
+    } else {
 
+    }
+
+}
+
+void lookForErros(char e[], int line){
+    int length =  (int) strlen(e);
+    if (e[0] == '\"'){
+        if (e[length - 1] != '\"' || e[length - 2] == '\\')
+            printErro(e, line);
+        else
+            checkInside(e, 1); // rodeado por ""
+    } else if (e[0] == '\'') {
+        if (e[length - 1] != '\'' || e[length - 2] == '\\')
+            printErro(e, line);
+        else
+            checkInside(e, 1); // rodeado por ''
+    } else
+        checkInside(e, 0); //sem "" ou '' 
+}
 
 
 int main(int argc, char const *argv[]) {
