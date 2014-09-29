@@ -1,0 +1,8 @@
+"testando\'"
+"testando\'a"
+"testando'"
+"testando'
+"'" aa
+11111111111
+56a
+$$
