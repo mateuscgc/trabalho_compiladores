@@ -1,5 +1,0 @@
-Declare i as number.
-declare v[] as letter
-put 2 in i
-resize v to i+5
-put "oi\n" in v.

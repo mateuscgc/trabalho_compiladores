@@ -171,19 +171,15 @@ int main(int argc, char const *argv[]) {
                 printErro(elemento, line);
 
             } else if ( checkFirst(elemento, '\'') && checkLast(elemento, '\'') ){
-                if (elemento[length - 2] == '\\')
+                if (elemento[length - 2] == '\\' && elemento[length - 3] != '\\')
                     printErro(elemento, line);
                 if (length <= 2)
                     printErro(elemento, line);
                 if( length > 4 || (length > 3 && elemento[1] != '\\'))
                     printErro(elemento, line);
                 if(elemento[1] == '\\'){
-                    if (length == 3)
-                        strncpy(erro, &elemento[1], 1);
-                        printErro(erro, line);
                     if (elemento[2] != 't' && elemento[2] != 'n' && elemento[2] != '\\' && elemento[2] != '\'' && elemento[2] != '\"') {
-                        strncpy(erro, &elemento[1], 1);
-                        printErro(erro, line);
+                        printErro(elemento, line);
                     }
                 } else if(elemento[1] == '\"') {
                     strncpy(erro, &elemento[1], 1);
@@ -198,7 +194,8 @@ int main(int argc, char const *argv[]) {
                 contraBarra = 0;
                 
                 for (i = 0; i < length; i++)
-                    if(elemento[i] == '\\')
+                    if(elemento[i] == '\\' && (elemento[i+1] == 't' && elemento[i+1] == 'n' && elemento[i+1] == '\\'
+                         && elemento[i+1] == '\'' && elemento[i+1] == '\"'))
                         contraBarra++;
                 if ((length - contraBarra) > 256)
                     printErro (elemento, line);
