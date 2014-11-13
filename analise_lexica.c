@@ -221,10 +221,10 @@ int main(int argc, char const *argv[]) {
                     if(!isalpha(elemento[i]) && !isdigit(elemento[i]) && elemento[i] != ',' && elemento[i] != '.' && elemento[i] != '['
                         && elemento[i] != ']' && elemento[i] != '+' && elemento[i] != '-' && elemento[i] != '*' && elemento[i] != '/'
                         && elemento[i] != '%' && elemento[i] != '(' && elemento[i] != ')' && elemento[i] != '=' && elemento[i] != '<'
-                        && elemento[i] != '>' && elemento[i] != ' ') { // Verifica se os caracteres não são nem letras nem números && elemento[i] != '' && elemento[i] != '' && elemento[i] != '' && elemento[i] != ''
-                        strncpy(erro, &elemento[i], 1); // Imprime o erro de caracter invalido
-                        printErro(erro, line);
-                        number = false;
+                        && elemento[i] != '>' && elemento[i] != ' ') { // Verifica se os caracteres não são nem letras nem números
+                            strncpy(erro, &elemento[i], 1); // Imprime o erro de caracter invalido
+                        	printErro(erro, line);
+                        	number = false;
                     } else {
                         if(isalpha(elemento[i])){  // Verifica se tem alguma letra no elemento 
                             if(!isalpha(elemento[0])) {// e então verifica se o primeiro é letra
