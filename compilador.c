@@ -44,6 +44,39 @@ _Bool isSeparator(char elemento){
     return false;
 }
 
+// nextPos = checkIdentificador(entrada, nextPos);
+int checkIdentificador(char e*,int pos){
+	int aux = pos + 1;
+	while(isLetter(e[aux] || isNumber(e[aux]))
+		aux++;
+	}
+	//salvatoken
+	return aux - 1;
+}
+int checkNumber(char e*, int pos, int l){
+	int aux = pos + 1;
+	while (isNumber(e[aux])){
+		aux++;
+	}
+	//salvatoken
+	if ((aux) - pos > 10)
+		//printErro
+	return aux - 1;
+}
+
+// nextPos = checkConstChar(entrada, nextPos, line);
+int checkConstChar(char *e,int pos, int l){
+	int aux = pos + 1;
+	while ((e[aux] != '\'' || e[aux-1] != '\\') && e[aux] != '\t' && e[aux] != '\n' && e[aux] != 0){
+		aux++;
+	}
+	if(e[aux] != '\'')
+		//printErroTudo
+	else if(aux - pos > 3)
+
+
+}
+
 int main(int argc, char const *argv[]) {
 
 char *entrada;
@@ -77,7 +110,7 @@ char *entrada;
     while (entrada[nextPos] != 0){//sempre retornar o index do ultimo char usado para que aqui seja incrementado
         nextChar = entrada[nextPos];
         if (isLetter(nextChar))
-            nextPos = checkIdentificador(entrada, nextPos, line);
+            nextPos = checkIdentificador(entrada, nextPos);
         else if (isNumber(nextChar))
             nextPos = checkNumber(entrada, nextPos, line);
         else if (nextChar == '\'')
@@ -100,7 +133,4 @@ char *entrada;
     }
 
     return 0
-}    
-
-
-
+}
