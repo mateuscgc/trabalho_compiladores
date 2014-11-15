@@ -147,6 +147,7 @@ int main(int argc, char const *argv[]) {
     } else
         return 0;
 
+    printf("what?\n");
 
     if(!verificadorCaracteres(entrada)){
         printf("ARQUIVO INVÁLIDO!\n");

@@ -1,2 +1,2 @@
 all:
-	gcc analise_lexica.c
+	gcc compilador.c
