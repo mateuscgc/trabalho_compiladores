@@ -8,12 +8,12 @@ LINHA 11: "
 LINHA 12: #
 LINHA 12: #
 LINHA 18: "teste\"
-LINHA 19: '
+LINHA 19: "teste'"
 LINHA 20: "teste'
 LINHA 22: "teste
 LINHA 22: \
 LINHA 22: '"
-LINHA 23: '
+LINHA 23: "'"
 LINHA 24: '\'abc
 LINHA 26: 22222222222
 LINHA 27: 56a
@@ -21,7 +21,7 @@ LINHA 28: $
 LINHA 28: $
 LINHA 29: "
 LINHA 30: "
-LINHA 32: '
+LINHA 32: "a'a"
 LINHA 33: !
 LINHA 35: "
 LINHA 36: 1abc
@@ -30,24 +30,5 @@ LINHA 42: &
 LINHA 42: #
 LINHA 42: $
 LINHA 47: "duhasd\uhasduihasdu\hasduihasuid\hasuidh\asuidhasuidha\suidhasuidhai\sdhasuidhasuidhasuidhasui\hda\suihda\suih\dauishdaui\shdasuihdasuidhasu\ihdasui\dhasi\dhasu\ihda\sidasuihdasiuhdasuisdha\siudhasuidhasuidhasuid\hasuidhasuidhasiudhasuidha\suidhasiudhasuidhasuidhauidshasui"
-LINHA 47: \u
-LINHA 47: \h
-LINHA 47: \h
-LINHA 47: \a
-LINHA 47: \s
-LINHA 47: \s
-LINHA 47: \h
-LINHA 47: \s
-LINHA 47: \s
-LINHA 47: \d
-LINHA 47: \s
-LINHA 47: \i
-LINHA 47: \d
-LINHA 47: \d
-LINHA 47: \i
-LINHA 47: \s
-LINHA 47: \s
-LINHA 47: \h
-LINHA 47: \s
 LINHA 49: "duhasduhasduihasduhasduihasuidhasuidhasuidhasuidhasuidhasuidhaisdhasuidhasuidhasuidhasuihdasuihdasuihdauishdauishdasuihdasuidhasuihdasuidhasidhasuihdasidasuihdasiuhdasuisdhasiudhasuidhasuidhasuidhasuidhasuidhasiudhasuidhasuidhasiudhasuidhasuidhauidshasuiuiasdhuiasdhuiashdiasuhdaihduiash"
-
+LINHA 57: "ddsf \a fff"
