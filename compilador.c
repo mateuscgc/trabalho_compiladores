@@ -3,8 +3,67 @@
 #include <string.h>
 #include <stdlib.h>
 
+// ============================================================================
+// ============================= Lista de Tokens ==============================
+// ============================================================================
+typedef enum {
+   DECLARE, AS, NUMBER, LETTER, PUT, IN, IF, THE, ELSE, FOREACH, DO, FOR, FROM, TO
+   , RESIZE, READ, PRINT, COMMA, DOT, OPENCOLCHETES, CLOSECOLCHETES, PLUS, MINUS, TIMES
+   , DIVIDE, MOD, OPENPARENTESES, CLOSEPARENTESES, LESSTHAN, GREATERTHAN, LESSEQUALTHAN
+   , GREATEREQUALTHAN, EQUAL, DIFERENT
+} tokenType;
 
-long getFileSize(FILE *file){
+
+// typedef struct slistaint
+// {
+//     int chave;
+//     struct nolistaint *prox;
+// } nolistaint, *listaint;
+typedef struct slistaToken {
+    tokenType tokenVal;
+    char * stringVal;
+    int numVal;
+    struct nolistaToken *prox;
+} nolistaToken, *listaToken;
+
+
+void inicializar (listaint *l) {
+    *l = NULL;
+}
+
+_Bool consultar (listaint *l, int x) {
+    listaint aux;
+    for(aux = *l; (aux) && ((*aux).chave != x); aux = (*aux).prox);
+    return (aux);
+}
+
+_Bool inserir (listaint *l, int x) {
+    listaint aux;
+    if (consultar (&(*l), x))
+        return true;
+    if (!(aux = (nolistaint*) malloc (sizeof(nolistaint))))
+        return false;
+    (*aux).prox = (*l);
+    (*aux).chave = x;
+    *l = aux;
+    return true;
+}
+
+void retirar(listaint *l, int x) {
+    listaint p, pant;
+    for (p = *l, pant = NULL; (p) && ((*p).chave != x); pant = p, p = (*p).prox);
+    if(p){
+        if(!pant)
+            *l = (*p).prox;
+        else
+            (*pant).prox = (*p).prox;
+        free(p);
+    z
+}
+
+// ==============================================================================
+
+long getFileSize(FILE *file) {
     long pos = ftell(file);
     long size;
     
