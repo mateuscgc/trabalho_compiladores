@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 // ============================================================================
 // ============================= Lista de Tokens ==============================
@@ -10,15 +11,10 @@ typedef enum {
    DECLARE, AS, NUMBER, LETTER, PUT, IN, IF, THE, ELSE, FOREACH, DO, FOR, FROM, TO
    , RESIZE, READ, PRINT, COMMA, DOT, OPENCOLCHETES, CLOSECOLCHETES, PLUS, MINUS, TIMES
    , DIVIDE, MOD, OPENPARENTESES, CLOSEPARENTESES, LESSTHAN, GREATERTHAN, LESSEQUALTHAN
-   , GREATEREQUALTHAN, EQUAL, DIFERENT
+   , GREATEREQUALTHAN, EQUAL, DIFERENT, ID, NUMBER, CONSTCHAR, CONSTSTRING
 } tokenType;
 
 
-// typedef struct slistaint
-// {
-//     int chave;
-//     struct nolistaint *prox;
-// } nolistaint, *listaint;
 typedef struct slistaToken {
     tokenType tokenVal;
     char * stringVal;
@@ -27,30 +23,85 @@ typedef struct slistaToken {
 } nolistaToken, *listaToken;
 
 
-void inicializar (listaint *l) {
+void inicializar (listaToken *l) {
     *l = NULL;
 }
 
-_Bool consultar (listaint *l, int x) {
-    listaint aux;
+_Bool consultar (listaToken *l, int x) {
+    listaToken aux;
     for(aux = *l; (aux) && ((*aux).chave != x); aux = (*aux).prox);
     return (aux);
 }
 
-_Bool inserir (listaint *l, int x) {
-    listaint aux;
-    if (consultar (&(*l), x))
-        return true;
-    if (!(aux = (nolistaint*) malloc (sizeof(nolistaint))))
+void salvatokenIdentificador(char *e, int i , int f, listaToken *l){
+    int length = f - i + 1, j;
+    char stringVal[length + 1];
+    for (j = 0; j < length; j++){
+        stringVal[j] = toupper(e[i + j]);
+    }
+    stringVal[j] = 0;
+    switch (length){
+        case 2:
+            if (strncmp(stringVal[], "AS", 2)) { while(!inseriToken(l, AS, stringVal)); }
+            else if (strncmp(stringVal[], "IN", 2)) { while(!inseriToken(l, IN, stringVal));}
+            else if (strncmp(stringVal[], "IF", 2)) { while(!inseriToken(l, IF, stringVal));}
+            else if (strncmp(stringVal[], "DO", 2)) { while(!inseriToken(l, DO, stringVal));}
+            else if (strncmp(stringVal[], "TO")) { while(!inseriToken(l, TO, stringVal));}
+            else { while(!inseriToken(l, ID, stringVal));}
+        break;
+        case 3: 
+            if (strncmp(stringVal[], "PUT", 3)) { while(!inseriToken(l, PUT, stringVal)); }
+            else if (strncmp(stringVal[], "FOR", 3)) { while(!inseriToken(l, FOR, stringVal));}
+            else { while(!inseriToken(l, ID, stringVal));}
+        break
+        case 4:
+            if (strncmp(stringVal[], "THEN", 4)) { while(!inseriToken(l, THEN, stringVal)); }
+            else if (strncmp(stringVal[], "ELSE", 4)) { while(!inseriToken(l, ELSE, stringVal));}
+            else if (strncmp(stringVal[], "FROM", 4)) { while(!inseriToken(l, FROM, stringVal));}
+            else if (strncmp(stringVal[], "READ", 4)) { while(!inseriToken(l, READ, stringVal));}
+            else { while(!inseriToken(l, ID, stringVal));}
+        break;
+        case 5:
+            if (strncmp(stringVal[], "PRINT", 5)) { while(!inseriToken(l, PRINT, stringVal)); }
+            else { while(!inseriToken(l, ID, stringVal));}
+        break;
+        case 6:
+            if (strncmp(stringVal[], "NUMBER", 6)) { while(!inseriToken(l, NUMBER, stringVal)); }
+            else if (strncmp(stringVal[], "LETTER", 6)) { while(!inseriToken(l, LETTER, stringVal));}
+            else if (strncmp(stringVal[], "RESIZE", 6)) { while(!inseriToken(l, RESIZE, stringVal));}
+            else { while(!inseriToken(l, ID, stringVal));}
+        break;
+        case 7:
+            if (strncmp(stringVal[], "DECLARE", 7)) { while(!inseriToken(l, DECLARE, stringVal)); }
+            else if (strncmp(stringVal[], "FOREACH", 7)) { while(!inseriToken(l, FOREACH, stringVal));}
+            else { while(!inseriToken(l, ID, stringVal));}
+        break;
+        default :
+            while(!inseriToken(l, ID, stringVal));
+    } 
+}
+
+_Bool inseriToken (listaToken *l, tokenType tv, char *sv) {
+    listaToken aux, p, pant;
+    if (!(aux = (nolistaToken*) malloc (sizeof(nolistaToken))))
         return false;
-    (*aux).prox = (*l);
-    (*aux).chave = x;
-    *l = aux;
+
+    aux.tokenVal = tv;
+    aux.stringVal = sv;
+    if (tv == NUMBER)
+        numVal = atoi(sv);
+    aux.prox = NULL;
+
+    for (p = *l, pant = NULL; (p); pant = p, p = (*p).prox);
+    if(p == *l)
+        *l = aux;
+    else
+        (*pant).prox = aux;
     return true;
 }
 
-void retirar(listaint *l, int x) {
-    listaint p, pant;
+void retirar(listaToken *l, int x) {
+    listaToken p, pant;
     for (p = *l, pant = NULL; (p) && ((*p).chave != x); pant = p, p = (*p).prox);
     if(p){
         if(!pant)
@@ -58,7 +109,7 @@ void retirar(listaint *l, int x) {
         else
             (*pant).prox = (*p).prox;
         free(p);
-    z
+    }
 }
 
 // ==============================================================================
