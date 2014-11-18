@@ -8,10 +8,10 @@
 // ============================= Lista de Tokens ==============================
 // ============================================================================
 typedef enum {
-   DECLARE, AS, NUMBER, LETTER, PUT, IN, IF, THE, ELSE, FOREACH, DO, FOR, FROM, TO
+   DECLARE, AS, NUMBER, LETTER, PUT, IN, IF, THEN, ELSE, FOREACH, DO, FOR, FROM, TO
    , RESIZE, READ, PRINT, COMMA, DOT, OPENCOLCHETES, CLOSECOLCHETES, PLUS, MINUS, TIMES
    , DIVIDE, MOD, OPENPARENTESES, CLOSEPARENTESES, LESSTHAN, GREATERTHAN, LESSEQUALTHAN
-   , GREATEREQUALTHAN, EQUAL, DIFERENT, ID, NUMBER, CONSTCHAR, CONSTSTRING
+   , GREATEREQUALTHAN, EQUAL, DIFERENT, ID, CONSTNUM, CONSTCHAR, CONSTSTRING
 } tokenType;
 
 
@@ -34,54 +34,74 @@ void inicializar (listaToken *l) {
 // }
 
 _Bool formString(char *e, char **s, int i, int f){
-    int length = f - i + 1, j;
-    if(!(*s) = (char*) malloc(sizeof(char)*length + 1))
-        return false;
+    int length = f - i + 1;
     int j;
+    if(!((*s) = (char*) malloc(length + 1)))
+        return false;
     for (j = 0; j < length; j++)
         (*s)[j] = e[i+j]; 
-    stringVal[j] = 0;
+    (*s)[j] = 0;
+    return true;
+}
+
+_Bool inseriToken(listaToken *l, tokenType tv, char *sv) {
+    listaToken aux, p, pant;
+    if (!(aux = (nolistaToken*) malloc (sizeof(nolistaToken))))
+        return false;
+
+    aux->tokenVal = tv;
+    aux->stringVal = sv;
+    if (tv == CONSTNUM)
+        aux->numVal = atoi(sv);
+    aux->prox = NULL;
+
+    for (p = *l, pant = NULL; (p); pant = p, p = (*p).prox);
+    if(p == *l)
+        *l = aux;
+    else
+        (*pant).prox = aux;
     return true;
 }
 
 void salvaTokenIdentificador(char *e, int i , int f, listaToken *l){
     char *stringVal;
     while(!formString(e, &stringVal, i, f));
-    switch (length){
+    printf("%s\n", stringVal);
+    switch (strlen(stringVal)){
         case 2:
-            if (strncmp(stringVal[], "AS", 2)) { while(!inseriToken(l, AS, stringVal)); }
-            else if (strncmp(stringVal[], "IN", 2)) { while(!inseriToken(l, IN, stringVal));}
-            else if (strncmp(stringVal[], "IF", 2)) { while(!inseriToken(l, IF, stringVal));}
-            else if (strncmp(stringVal[], "DO", 2)) { while(!inseriToken(l, DO, stringVal));}
-            else if (strncmp(stringVal[], "TO")) { while(!inseriToken(l, TO, stringVal));}
-            else { while(!inseriToken(l, ID, stringVal));}
+            if      (strncmp(stringVal, "AS", 2))       { while(!inseriToken(l, AS, stringVal)); }
+            else if (strncmp(stringVal, "IN", 2))       { while(!inseriToken(l, IN, stringVal));}
+            else if (strncmp(stringVal, "IF", 2))       { while(!inseriToken(l, IF, stringVal));}
+            else if (strncmp(stringVal, "DO", 2))       { while(!inseriToken(l, DO, stringVal));}
+            else if (strncmp(stringVal, "TO", 2))       { while(!inseriToken(l, TO, stringVal));}
+            else                                        { while(!inseriToken(l, ID, stringVal));}
         break;
         case 3: 
-            if (strncmp(stringVal[], "PUT", 3)) { while(!inseriToken(l, PUT, stringVal)); }
-            else if (strncmp(stringVal[], "FOR", 3)) { while(!inseriToken(l, FOR, stringVal));}
-            else { while(!inseriToken(l, ID, stringVal));}
-        break
+            if      (strncmp(stringVal, "PUT", 3))      { while(!inseriToken(l, PUT, stringVal)); }
+            else if (strncmp(stringVal, "FOR", 3))      { while(!inseriToken(l, FOR, stringVal));}
+            else                                        { while(!inseriToken(l, ID, stringVal));}
+        break;
         case 4:
-            if (strncmp(stringVal[], "THEN", 4)) { while(!inseriToken(l, THEN, stringVal)); }
-            else if (strncmp(stringVal[], "ELSE", 4)) { while(!inseriToken(l, ELSE, stringVal));}
-            else if (strncmp(stringVal[], "FROM", 4)) { while(!inseriToken(l, FROM, stringVal));}
-            else if (strncmp(stringVal[], "READ", 4)) { while(!inseriToken(l, READ, stringVal));}
-            else { while(!inseriToken(l, ID, stringVal));}
+            if      (strncmp(stringVal, "THEN", 4))     { while(!inseriToken(l, THEN, stringVal)); }
+            else if (strncmp(stringVal, "ELSE", 4))     { while(!inseriToken(l, ELSE, stringVal));}
+            else if (strncmp(stringVal, "FROM", 4))     { while(!inseriToken(l, FROM, stringVal));}
+            else if (strncmp(stringVal, "READ", 4))     { while(!inseriToken(l, READ, stringVal));}
+            else                                        { while(!inseriToken(l, ID, stringVal));}
         break;
         case 5:
-            if (strncmp(stringVal[], "PRINT", 5)) { while(!inseriToken(l, PRINT, stringVal)); }
-            else { while(!inseriToken(l, ID, stringVal));}
+            if      (strncmp(stringVal, "PRINT", 5))    { while(!inseriToken(l, PRINT, stringVal)); }
+            else                                        { while(!inseriToken(l, ID, stringVal));}
         break;
         case 6:
-            if (strncmp(stringVal[], "NUMBER", 6)) { while(!inseriToken(l, NUMBER, stringVal)); }
-            else if (strncmp(stringVal[], "LETTER", 6)) { while(!inseriToken(l, LETTER, stringVal));}
-            else if (strncmp(stringVal[], "RESIZE", 6)) { while(!inseriToken(l, RESIZE, stringVal));}
-            else { while(!inseriToken(l, ID, stringVal));}
+            if      (strncmp(stringVal, "CONSTNUM", 6)) { while(!inseriToken(l, NUMBER, stringVal)); }
+            else if (strncmp(stringVal, "LETTER", 6))   { while(!inseriToken(l, LETTER, stringVal)); }
+            else if (strncmp(stringVal, "RESIZE", 6))   { while(!inseriToken(l, RESIZE, stringVal)); }
+            else                                        { while(!inseriToken(l, ID, stringVal));}
         break;
         case 7:
-            if (strncmp(stringVal[], "DECLARE", 7)) { while(!inseriToken(l, DECLARE, stringVal)); }
-            else if (strncmp(stringVal[], "FOREACH", 7)) { while(!inseriToken(l, FOREACH, stringVal));}
-            else { while(!inseriToken(l, ID, stringVal));}
+            if      (strncmp(stringVal, "DECLARE", 7))  { while(!inseriToken(l, DECLARE, stringVal)); }
+            else if (strncmp(stringVal, "FOREACH", 7))  { while(!inseriToken(l, FOREACH, stringVal)); }
+            else                                        { while(!inseriToken(l, ID, stringVal));}
         break;
         default :
             while(!inseriToken(l, ID, stringVal));
@@ -93,40 +113,21 @@ void salvaTokenSeparadorUnico(char *e, int i, listaToken *l){
     stringVal[0] = e[i];
     stringVal[1] = 0;
     switch(stringVal[0]) {
-        case ',':   while(!inseriToken(l, COMMA,            stringVal)); break;
-        case '.':   while(!inseriToken(l, DOT,              stringVal)); break;
-        case '[':   while(!inseriToken(l, OPENCOLCHETES,    stringVal)); break;
-        case ']':   while(!inseriToken(l, CLOSECOLCHETES,   stringVal)); break;
-        case '+':   while(!inseriToken(l, PLUS,             stringVal)); break;
-        case '-':   while(!inseriToken(l, MINUS,            stringVal)); break;
-        case '*':   while(!inseriToken(l, TIMES,            stringVal)); break;
-        case '/':   while(!inseriToken(l, DIVIDE,           stringVal)); break;
-        case '%':   while(!inseriToken(l, MOD,              stringVal)); break;
-        case '(':   while(!inseriToken(l, OPENPARENTESES,   stringVal)); break;
-        case ')':   while(!inseriToken(l, CLOSEPARENTESES,  stringVal)); break;
-        case '=':   while(!inseriToken(l, EQUAL,            stringVal)); break;
-        case '<':   while(!inseriToken(l, LESSTHAN,         stringVal)); break;
-        case '>':   while(!inseriToken(l, GREATERTHAN,      stringVal)); break;
+        case ',':   while(!inseriToken(l, COMMA,            stringVal)); printf("%s\n", stringVal); break;
+        case '.':   while(!inseriToken(l, DOT,              stringVal)); printf("%s\n", stringVal); break;
+        case '[':   while(!inseriToken(l, OPENCOLCHETES,    stringVal)); printf("%s\n", stringVal); break;
+        case ']':   while(!inseriToken(l, CLOSECOLCHETES,   stringVal)); printf("%s\n", stringVal); break;
+        case '+':   while(!inseriToken(l, PLUS,             stringVal)); printf("%s\n", stringVal); break;
+        case '-':   while(!inseriToken(l, MINUS,            stringVal)); printf("%s\n", stringVal); break;
+        case '*':   while(!inseriToken(l, TIMES,            stringVal)); printf("%s\n", stringVal); break;
+        case '/':   while(!inseriToken(l, DIVIDE,           stringVal)); printf("%s\n", stringVal); break;
+        case '%':   while(!inseriToken(l, MOD,              stringVal)); printf("%s\n", stringVal); break;
+        case '(':   while(!inseriToken(l, OPENPARENTESES,   stringVal)); printf("%s\n", stringVal); break;
+        case ')':   while(!inseriToken(l, CLOSEPARENTESES,  stringVal)); printf("%s\n", stringVal); break;
+        case '=':   while(!inseriToken(l, EQUAL,            stringVal)); printf("%s\n", stringVal); break;
+        case '<':   while(!inseriToken(l, LESSTHAN,         stringVal)); printf("%s\n", stringVal); break;
+        case '>':   while(!inseriToken(l, GREATERTHAN,      stringVal)); printf("%s\n", stringVal); break;
     }
-}
-
-_Bool inseriToken (listaToken *l, tokenType tv, char *sv) {
-    listaToken aux, p, pant;
-    if (!(aux = (nolistaToken*) malloc (sizeof(nolistaToken))))
-        return false;
-
-    aux.tokenVal = tv;
-    aux.stringVal = sv;
-    if (tv == NUMBER)
-        numVal = atoi(sv);
-    aux.prox = NULL;
-
-    for (p = *l, pant = NULL; (p); pant = p, p = (*p).prox);
-    if(p == *l)
-        *l = aux;
-    else
-        (*pant).prox = aux;
-    return true;
 }
 
 // void retirar(listaToken *l, int x) {
@@ -219,6 +220,7 @@ int checkNumber(char *e, int pos, int l,  listaToken *lista){
     else {
         char *stringVal;
         while(!formString(e, &stringVal, pos, aux - 1));
+        printf("%s\n", stringVal);
         while(!inseriToken(lista, NUMBER, stringVal));
     }
     return aux - 1;
@@ -247,6 +249,7 @@ int checkConstChar(char *e,int pos, int l, listaToken*lista){
                 printErroLexico(e, pos, aux, l);
             else{
                 while(!formString(e, &stringVal, pos+1, aux-1));
+                printf("%s\n", stringVal);
                 while(!inseriToken(lista, CONSTCHAR, stringVal));
             }
         } else {
@@ -257,6 +260,7 @@ int checkConstChar(char *e,int pos, int l, listaToken*lista){
             printErroLexico(e, pos, aux, l);
         } else {
             while(!formString(e, &stringVal, pos+1, aux-1));
+            printf("%s\n", stringVal);
             while(!inseriToken(lista, CONSTCHAR, stringVal));
         }
     } else {
@@ -267,7 +271,7 @@ int checkConstChar(char *e,int pos, int l, listaToken*lista){
     return aux;
 }
 
-int checkString(char *e, int pos, int l){
+int checkString(char *e, int pos, int l, listaToken *lista){
     int aux = pos  + 1;
     int len = 0;
     _Bool exception = false;
@@ -299,6 +303,7 @@ int checkString(char *e, int pos, int l){
     } else {
         char *stringVal;
         while(!formString(e, &stringVal, pos+1, aux-1));
+        printf("%s\n", stringVal);
         while(!inseriToken(lista, CONSTSTRING, stringVal));
     }
     if(e[aux] == '\t' || e[aux] == '\n')
@@ -336,36 +341,39 @@ int main(int argc, char const *argv[]) {
     int nextPos = 0;
     char nextChar;
     int line = 1;
-    char stringVal;
+    char *stringVal;
 
     listaToken l;
     inicializar(&l);
 
-    while (entrada[nextPos] != 0){}       
+    while (entrada[nextPos] != 0){
         nextChar = entrada[nextPos];
         if (isalpha(nextChar)) {
             nextPos = checkIdentificador(entrada, nextPos, &l);
         } else if (isNumber(nextChar)) {
-            nextPos = checkNumber(entrada, nextPos, line);
+            nextPos = checkNumber(entrada, nextPos, line, &l);
         } else if (nextChar == '\''){
-            nextPos = checkConstChar(entrada, nextPos, line);
+            nextPos = checkConstChar(entrada, nextPos, line, &l);
         } else if (nextChar == '\"'){
-            nextPos = checkString(entrada, nextPos, line);
+            nextPos = checkString(entrada, nextPos, line, &l);
         } else if (nextChar == '\n'){
             line++;
         } else if (nextChar == '>'){
             if (entrada[nextPos + 1] == '='){
                 while(!formString(entrada, &stringVal, nextPos, nextPos + 1));
-                while(!inseriToken(l, GREATEREQUALTHAN, stringVal));
-            }
+                printf("%s\n", stringVal);
+                while(!inseriToken(&l, GREATEREQUALTHAN, stringVal));
+            } else salvaTokenSeparadorUnico(entrada, nextPos, &l);
         } else if (nextChar == '<'){
             if (entrada[nextPos + 1] == '=') {
                 while(!formString(entrada, &stringVal, nextPos, nextPos + 1));
-                while(!inseriToken(l, LESSEQUALTHAN, stringVal));
+                printf("%s\n", stringVal);
+                while(!inseriToken(&l, LESSEQUALTHAN, stringVal));
             } else if (entrada[nextPos + 1] == '>'){
                 while(!formString(entrada, &stringVal, nextPos, nextPos + 1));
-                while(!inseriToken(l, DIFERENT, stringVal));
-            }
+                printf("%s\n", stringVal);
+                while(!inseriToken(&l, DIFERENT, stringVal));
+            } else salvaTokenSeparadorUnico(entrada, nextPos, &l);
         } else if (isSeparator(nextChar)){
             salvaTokenSeparadorUnico(entrada, nextPos, &l);
         } else if (nextChar != ' ' && nextChar != '\t')
