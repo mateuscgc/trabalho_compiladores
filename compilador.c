@@ -27,19 +27,26 @@ void inicializar (listaToken *l) {
     *l = NULL;
 }
 
-_Bool consultar (listaToken *l, int x) {
-    listaToken aux;
-    for(aux = *l; (aux) && ((*aux).chave != x); aux = (*aux).prox);
-    return (aux);
+// _Bool consultar (listaToken *l, int x) {
+//     listaToken aux;
+//     for(aux = *l; (aux) && ((*aux).chave != x); aux = (*aux).prox);
+//     return (aux);
+// }
+
+_Bool formString(char *e, char **s, int i, int f){
+    int length = f - i + 1, j;
+    if(!(*s) = (char*) malloc(sizeof(char)*length + 1))
+        return false;
+    int j;
+    for (j = 0; j < length; j++)
+        (*s)[j] = e[i+j]; 
+    stringVal[j] = 0;
+    return true;
 }
 
-void salvatokenIdentificador(char *e, int i , int f, listaToken *l){
-    int length = f - i + 1, j;
-    char stringVal[length + 1];
-    for (j = 0; j < length; j++){
-        stringVal[j] = toupper(e[i + j]);
-    }
-    stringVal[j] = 0;
+void salvaTokenIdentificador(char *e, int i , int f, listaToken *l){
+    char *stringVal;
+    while(!formString(e, &stringVal, i, f));
     switch (length){
         case 2:
             if (strncmp(stringVal[], "AS", 2)) { while(!inseriToken(l, AS, stringVal)); }
@@ -81,6 +88,28 @@ void salvatokenIdentificador(char *e, int i , int f, listaToken *l){
     } 
 }
 
+void salvaTokenSeparadorUnico(char *e, int i, listaToken *l){
+    char stringVal[2];
+    stringVal[0] = e[i];
+    stringVal[1] = 0;
+    switch(stringVal[0]) {
+        case ',':   while(!inseriToken(l, COMMA,            stringVal)); break;
+        case '.':   while(!inseriToken(l, DOT,              stringVal)); break;
+        case '[':   while(!inseriToken(l, OPENCOLCHETES,    stringVal)); break;
+        case ']':   while(!inseriToken(l, CLOSECOLCHETES,   stringVal)); break;
+        case '+':   while(!inseriToken(l, PLUS,             stringVal)); break;
+        case '-':   while(!inseriToken(l, MINUS,            stringVal)); break;
+        case '*':   while(!inseriToken(l, TIMES,            stringVal)); break;
+        case '/':   while(!inseriToken(l, DIVIDE,           stringVal)); break;
+        case '%':   while(!inseriToken(l, MOD,              stringVal)); break;
+        case '(':   while(!inseriToken(l, OPENPARENTESES,   stringVal)); break;
+        case ')':   while(!inseriToken(l, CLOSEPARENTESES,  stringVal)); break;
+        case '=':   while(!inseriToken(l, EQUAL,            stringVal)); break;
+        case '<':   while(!inseriToken(l, LESSTHAN,         stringVal)); break;
+        case '>':   while(!inseriToken(l, GREATERTHAN,      stringVal)); break;
+    }
+}
+
 _Bool inseriToken (listaToken *l, tokenType tv, char *sv) {
     listaToken aux, p, pant;
     if (!(aux = (nolistaToken*) malloc (sizeof(nolistaToken))))
@@ -100,17 +129,17 @@ _Bool inseriToken (listaToken *l, tokenType tv, char *sv) {
     return true;
 }
 
-void retirar(listaToken *l, int x) {
-    listaToken p, pant;
-    for (p = *l, pant = NULL; (p) && ((*p).chave != x); pant = p, p = (*p).prox);
-    if(p){
-        if(!pant)
-            *l = (*p).prox;
-        else
-            (*pant).prox = (*p).prox;
-        free(p);
-    }
-}
+// void retirar(listaToken *l, int x) {
+//     listaToken p, pant;
+//     for (p = *l, pant = NULL; (p) && ((*p).chave != x); pant = p, p = (*p).prox);
+//     if(p){
+//         if(!pant)
+//             *l = (*p).prox;
+//         else
+//             (*pant).prox = (*p).prox;
+//         free(p);
+//     }
+// }
 
 // ==============================================================================
 
@@ -168,15 +197,15 @@ void printErroLexico (char *e, int i, int f, int l){
 // =========== Funções de Checagem de Estruturas da linguagem =================
 // ============================================================================
 
-int checkIdentificador(char *e,int pos){
+int checkIdentificador(char *e,int pos, listaToken *lista){
 	int aux = pos + 1;
 	while (isalpha(e[aux]) || isNumber(e[aux])){
     	aux++;
     }
-	//salvatoken
+	salvaTokenIdentificador(e, pos, aux-1, lista);
 	return aux - 1;
 }
-int checkNumber(char *e, int pos, int l){
+int checkNumber(char *e, int pos, int l,  listaToken *lista){
 	int aux = pos + 1;
     bool letter = false;
 	while (isNumber(e[aux]) || isalpha(e[aux])) {
@@ -184,14 +213,20 @@ int checkNumber(char *e, int pos, int l){
             letter = true;
         aux++;
 	}
-	//salvatoken
+
 	if (aux - pos > 10 || letter)
         printErroLexico(e, pos, aux-1, l);
-	return aux - 1;
+    else {
+        char *stringVal;
+        while(!formString(e, &stringVal, pos, aux - 1));
+        while(!inseriToken(lista, NUMBER, stringVal));
+    }
+    return aux - 1;
 }
 
-int checkConstChar(char *e,int pos, int l){
+int checkConstChar(char *e,int pos, int l, listaToken*lista){
 	int aux = pos + 1;
+    char *stringVal;
     _Bool exception = false;
 	while ((e[aux] != '\'' || (e[aux-1] == '\\' && exception == true)) && e[aux] != '\t' && e[aux] != '\n' && e[aux] != 0){
 		if(e[aux] == '\\' && exception == false)
@@ -211,7 +246,8 @@ int checkConstChar(char *e,int pos, int l){
             if (e[aux-2] != '\\')
                 printErroLexico(e, pos, aux, l);
             else{
-                //salvatoken
+                while(!formString(e, &stringVal, pos+1, aux-1));
+                while(!inseriToken(lista, CONSTCHAR, stringVal));
             }
         } else {
             printErroLexico(e, pos, aux, l);
@@ -220,7 +256,8 @@ int checkConstChar(char *e,int pos, int l){
         if (e[aux-1] == '\\' || e[aux-1] == '\"') {
             printErroLexico(e, pos, aux, l);
         } else {
-            //salvatoken
+            while(!formString(e, &stringVal, pos+1, aux-1));
+            while(!inseriToken(lista, CONSTCHAR, stringVal));
         }
     } else {
         printErroLexico(e, pos, aux, l);
@@ -259,6 +296,10 @@ int checkString(char *e, int pos, int l){
         }
     } else if (len > 257){
         printErroLexico(e, pos, aux, l);
+    } else {
+        char *stringVal;
+        while(!formString(e, &stringVal, pos+1, aux-1));
+        while(!inseriToken(lista, CONSTSTRING, stringVal));
     }
     if(e[aux] == '\t' || e[aux] == '\n')
         aux--;
@@ -295,11 +336,15 @@ int main(int argc, char const *argv[]) {
     int nextPos = 0;
     char nextChar;
     int line = 1;
+    char stringVal;
 
-    while (entrada[nextPos] != 0){//sempre retornar o index do ultimo char usado para que aqui seja incrementado        
+    listaToken l;
+    inicializar(&l);
+
+    while (entrada[nextPos] != 0){}       
         nextChar = entrada[nextPos];
         if (isalpha(nextChar)) {
-            nextPos = checkIdentificador(entrada, nextPos);
+            nextPos = checkIdentificador(entrada, nextPos, &l);
         } else if (isNumber(nextChar)) {
             nextPos = checkNumber(entrada, nextPos, line);
         } else if (nextChar == '\''){
@@ -309,13 +354,20 @@ int main(int argc, char const *argv[]) {
         } else if (nextChar == '\n'){
             line++;
         } else if (nextChar == '>'){
-            if (entrada[nextPos + 1] == '=');
-                //salva token
+            if (entrada[nextPos + 1] == '='){
+                while(!formString(entrada, &stringVal, nextPos, nextPos + 1));
+                while(!inseriToken(l, GREATEREQUALTHAN, stringVal));
+            }
         } else if (nextChar == '<'){
-            if (entrada[nextPos + 1] == '=' || entrada[nextPos + 1] == '>');
-                //salva token
+            if (entrada[nextPos + 1] == '=') {
+                while(!formString(entrada, &stringVal, nextPos, nextPos + 1));
+                while(!inseriToken(l, LESSEQUALTHAN, stringVal));
+            } else if (entrada[nextPos + 1] == '>'){
+                while(!formString(entrada, &stringVal, nextPos, nextPos + 1));
+                while(!inseriToken(l, DIFERENT, stringVal));
+            }
         } else if (isSeparator(nextChar)){
-            //salva token
+            salvaTokenSeparadorUnico(entrada, nextPos, &l);
         } else if (nextChar != ' ' && nextChar != '\t')
             printErroLexico(entrada, nextPos, nextPos, line);
         nextPos++;
