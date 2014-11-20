@@ -5,14 +5,18 @@
 #include <ctype.h>
 
 // ============================================================================
-// ============================= Lista de Tokens ==============================
+// =========================== Estruturas de dados ============================
 // ============================================================================
 typedef enum {
    DECLARE = 0, AS = 1, NUMBER = 2, LETTER = 3, PUT = 4, IN = 5, IF = 6, THEN = 7, ELSE = 8, FOREACH = 9,
    DO = 10, FOR = 11, FROM = 12, TO = 13, RESIZE = 14, READ = 15, PRINT = 16, COMMA = 17, DOT = 18,
    OPENCOLCHETES = 19, CLOSECOLCHETES = 20, PLUS = 21, MINUS = 22, TIMES = 23, DIVIDE = 24, MOD = 25,
    OPENPARENTESES = 26, CLOSEPARENTESES = 27, LESSTHAN = 28, GREATERTHAN = 29, LESSEQUALTHAN = 30,
-   GREATEREQUALTHAN = 31, EQUAL = 32, DIFERENT = 33, ID = 34, CONSTNUM = 35, CONSTCHAR = 36, CONSTSTRING = 37
+   GREATEREQUALTHAN = 31, EQUAL = 32, DIFERENT = 33, ID = 34, CONSTNUM = 35, CONSTCHAR = 36, CONSTSTRING = 37,
+   
+   //Não terminais
+   SS = 38, S = 39, $ = 40, COMANDOS = 41, COMANDO = 42, VAZIO = 43, LISTAIDS = 44, TIPO = 45, EXPARIT = 46,
+   T = 47, F = 48, E = 49, SENAO = 50, OPRREL = 51, ESCRITA = 52
 } tokenType;
 
 
@@ -23,16 +27,19 @@ typedef struct slistaToken {
     struct slistaToken *prox;
 } nolistaToken, *listaToken;
 
+typedef struct spilhaToken {
+    nolistaToken token;
+    int estado;
+    struct spilhaToken *prox;
+} nopilhaToken, *pilhaToken ;
+
+// ============================================================================
+// ============================= Lista de Tokens ==============================
+// ============================================================================
 
 void inicializar (listaToken *l) {
     *l = NULL;
 }
-
-// _Bool consultar (listaToken *l, int x) {
-//     listaToken aux;
-//     for(aux = *l; (aux) && ((*aux).chave != x); aux = (*aux).prox);
-//     return (aux);
-// }
 
 _Bool formString(char *e, char **s, int i, int f){
     int length = f - i + 1;
@@ -47,7 +54,6 @@ _Bool formString(char *e, char **s, int i, int f){
 
 _Bool inseriToken(listaToken *l, tokenType tv, char *sv) {
     listaToken aux, p, pant;
-    printf("%s\n", sv);
     if (!(aux = (nolistaToken*) malloc (sizeof(nolistaToken))))
         return false;
 
@@ -66,9 +72,9 @@ _Bool inseriToken(listaToken *l, tokenType tv, char *sv) {
     return true;
 }
 
-void imprimeLista(listaToken l){
+void imprimeLista(listaToken *l){
     listaToken p;
-    for(p = l; (p); p = p->prox)
+    for(p = *l; (p); p = p->prox)
         printf("tv = %d\nsv = %s\n\n", p->tokenVal, p->stringVal);
 }
 
@@ -131,7 +137,6 @@ void salvaTokenSeparadorUnico(char e, listaToken *l){
     char stringVal[2];
     stringVal[0] = e;
     stringVal[1] = 0;
-    printf("%s\n", stringVal);
     switch(stringVal[0]) {
         case ',':   while(!inseriToken(l, COMMA,            stringVal)); break;
         case '.':   while(!inseriToken(l, DOT,              stringVal)); break;
@@ -150,19 +155,44 @@ void salvaTokenSeparadorUnico(char e, listaToken *l){
     }
 }
 
-// void retirar(listaToken *l, int x) {
-//     listaToken p, pant;
-//     for (p = *l, pant = NULL; (p) && ((*p).chave != x); pant = p, p = (*p).prox);
-//     if(p){
-//         if(!pant)
-//             *l = (*p).prox;
-//         else
-//             (*pant).prox = (*p).prox;
-//         free(p);
-//     }
-// }
+// ============================================================================
+// ============================= Pilha de tokens ==============================
+// ============================================================================
 
-// ==============================================================================
+void inicializaPilhaToken (pilhaToken *p){
+    *p = NULL;
+}
+
+_Bool empilhaToken (pilhaToken *p, nolistaToken token, int estado){
+    pilhaToken aux;
+    if(!(aux = (nopilhaToken*) malloc (sizeof(nopilhaToken))))
+        return false;
+    aux->token = token;
+    aux->estado = estado;
+    aux->prox = (*p);
+    (*p) = aux;
+    return true;
+}
+
+_Bool desempilhaToken (pilhaToken *p, pilhaToken *x) {
+    if (!(*p))
+        return false;
+    (*x) = (*p);
+    (*p) = (*p)->prox;
+    return true;
+}
+
+_Bool topoToken (pilhaToken *p, pilhaToken *x){
+    if (!(*p))
+        return false;
+    (*x) = (*p);
+    return true;
+}
+
+
+// ============================================================================
+// ============================ Funções auxiliares ============================
+// ============================================================================
 
 long getFileSize(FILE *file) {
     long pos = ftell(file);
@@ -215,7 +245,7 @@ void printErroLexico (char *e, int i, int f, int l){
 
 
 // ============================================================================
-// =========== Funções de Checagem de Estruturas da linguagem =================
+// ======================= Funções de Analise Lexica ==========================
 // ============================================================================
 
 int checkIdentificador(char *e,int pos, listaToken *lista){
@@ -330,10 +360,24 @@ int checkString(char *e, int pos, int l, listaToken *lista){
         aux--;
     return aux;
 }
-// ==========================================================================
 
+
+// ============================================================================
+// ======================= Funções de Analise Lexica ==========================
+// ============================================================================
+
+
+
+
+
+// ============================================================================
 
 int main(int argc, char const *argv[]) {
+    
+    //TABELA SLR1
+    
+
+
     char *entrada;
 
     if (argc > 1)
@@ -365,7 +409,7 @@ int main(int argc, char const *argv[]) {
 
     listaToken l;
     inicializar(&l);
-
+    //Analise Lexica
     while (entrada[nextPos] != 0){
         nextChar = entrada[nextPos];
         if (isalpha(nextChar)) {
@@ -401,7 +445,25 @@ int main(int argc, char const *argv[]) {
         nextPos++;
     }
 
-    imprimeLista(l);
+    imprimeLista(&l);
 
+    //Analise Sintatica
+    /*empilha $entrada
+    while (topoPEntrada) {
+        acaoTabela(topoPEntrada, estado) ----> retorna uma string com "eX" , "rX" , "ac" , "n"
+        if (eX) {
+            empilhaPTrabalho topoPEntrada e estado ---->
+            estado = x;
+        } else if (rX) {
+            consulta num de tokens comidos pela redução
+            desempilhaPTrabalho num tokens
+            estado = estado de PTrabalho[num]
+            empilhaPEntrada tokens gerados pela redução
+        } else if (ac){
+            printf("SIM\n");
+        } else {
+            printf("NAO\n");
+        }
+    }   */
     return 0;
 }

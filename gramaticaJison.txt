@@ -1,0 +1,89 @@
+/* Gramática para o jison */
+
+%%
+
+SS
+    : S '$'
+    ;
+
+S
+    : COMANDOS
+    ;
+
+COMANDOS
+    : COMANDO COMANDOS
+    | 
+    ;
+
+COMANDO
+    : DECLARE LISTAIDS AS TIPO '.'
+    | RESIZE ID TO EXPARIT '.'
+    | PUT PUTAVEL IN ID INDEX '.'
+    | IF EXPARIT OPRREL EXPARIT '[' COMANDOS ']' SENAO
+    | FOR ID INDEX FROM EXPARIT TO EXPARIT DO '[' COMANDOS ']'
+    | FOREACH ID IN ID DO '[' COMANDOS ']'
+    | READ ID INDEX '.'
+    | PRINT IMPRIMIVEL '.'
+    ;
+
+LISTAIDS
+    : ID INDEX LISTAIDS
+    | ID INDEX
+    ;
+
+INDEX
+    : '[' EXPARIT ']'
+    | 
+    ;
+
+TIPO
+    : NUMBER
+    | LETTER
+    ;
+
+EXPARIT
+    : EXPARIT '+' T
+    | EXPARIT '-' T
+    | T
+    ;
+
+T
+    : T '*' F
+    | T '/' F
+    | T '%' F
+    ;
+
+F
+    : '(' E ')'
+    | '-' '(' E ')'
+    | ID INDEX
+    | '-' ID INDEX
+    | CONSTNUM
+    | '-' CONSTNUM
+    ;
+
+PUTAVEL
+    : EXPARIT
+    | CONSTSTRING
+    ;
+
+SENAO
+    : ELSE '[' COMANDOS ']'
+    | 
+    ;
+
+OPRREL
+    : '<'
+    | '>'
+    | '<' '='
+    | '>' '='
+    | '='
+    | '<' '>'
+    ;
+
+IMPRIMIVEL
+    : ID INDEX
+    | CONSTNUM
+    | CONSTCHAR
+    | CONSTSTRING
+    ;
