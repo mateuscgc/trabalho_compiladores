@@ -16,7 +16,7 @@ typedef enum {
    
    //Não terminais
    SS = 38, S = 39, $ = 40, COMANDOS = 41, COMANDO = 42, VAZIO = 43, LISTAIDS = 44, TIPO = 45, EXPARIT = 46,
-   T = 47, F = 48, E = 49, SENAO = 50, OPRREL = 51, ESCRITA = 52
+   T = 47, F = 48, E = 49, SENAO = 50, OPRREL = 51, ESCRITA = 52, PUTAVEL = 53, INDEX = 54, IMPRIMIVEL = 55, NINDEX = 56
 } tokenType;
 
 
@@ -32,6 +32,12 @@ typedef struct spilhaToken {
     int estado;
     struct spilhaToken *prox;
 } nopilhaToken, *pilhaToken ;
+
+typedef struct producao {
+    int p; // não terminal antes da seta
+    int *q; // vetor dos simbolos depois da seta
+    int n // número de simbolos depois da
+} prod;
 
 // ============================================================================
 // ============================= Lista de Tokens ==============================
@@ -50,6 +56,7 @@ _Bool formString(char *e, char **s, int i, int f){
         (*s)[j] = e[i+j]; 
     (*s)[j] = 0;
     return true;
+}
 }
 
 _Bool inseriToken(listaToken *l, tokenType tv, char *sv) {
@@ -374,9 +381,330 @@ int checkString(char *e, int pos, int l, listaToken *lista){
 
 int main(int argc, char const *argv[]) {
     
-    //TABELA SLR1
+    //PRODUÇÕES
+    prod producoes[48];
     
+    producoes[0].p = SS;
+    producoes[0].q = (int*) malloc(2*sizeof(int));
+    producoes[0].q[0] = S;
+    producoes[0].q[1] = $;
+    producoes[0].n = 2;
 
+    producoes[1].p = S;
+    producoes[1].q = (int*) malloc(sizeof(int));
+    producoes[1].q[0] = COMANDOS;
+    producoes[1].n = 1;
+
+    producoes[2].p = COMANDOS;
+    producoes[2].q = (int*) malloc(2*sizeof(int));
+    producoes[2].q[0] = COMANDO;
+    producoes[2].q[1] = COMANDOS;
+    producoes[2].n = 2;
+
+    producoes[3].p = COMANDOS;
+    producoes[3].q = (int*) malloc (sizeof(int));
+    producoes[3].q[0] = VAZIO;
+    producoes[3].n = 0;
+
+    producoes[4].p = COMANDO;
+    producoes[4].q = (int*) malloc(5*sizeof(int));
+    producoes[4].q[0] = DECLARE;
+    producoes[4].q[1] = LISTAIDS;
+    producoes[4].q[2] = AS;
+    producoes[4].q[3] = TIPO;
+    producoes[4].q[4] = DOT;
+    producoes[4].n = 5;
+
+    producoes[5].p = COMANDO;
+    producoes[5].q = (int*) malloc(4*sizeof(int));
+    producoes[5].q[0] = RESIZE;
+    producoes[5].q[1] = ID;
+    producoes[5].q[2] = TO;
+    producoes[5].q[3] = EXPARIT;
+    producoes[5].q[4] = DOT;
+    producoes[5].n = 5;
+
+    producoes[6].p = COMANDO;
+    producoes[6].q = (int*) malloc(6*sizeof(int));
+    producoes[6].q[0] = PUT;
+    producoes[6].q[1] = PUTAVEL;
+    producoes[6].q[2] = IN;
+    producoes[6].q[3] = ID;
+    producoes[6].q[4] = INDEX;
+    producoes[6].q[5] = DOT;
+    producoes[6].n = 6;
+
+    producoes[7].p = COMANDO;
+    producoes[7].q = (int*) malloc(9*sizeof(int));
+    producoes[7].q[0] = IF;
+    producoes[7].q[1] = EXPARIT;
+    producoes[7].q[2] = OPRREL;
+    producoes[7].q[3] = EXPARIT;
+    producoes[7].q[4] = THEN;
+    producoes[7].q[5] = OPENCOLCHETES;
+    producoes[7].q[6] = COMANDOS;
+    producoes[7].q[7] = CLOSECOLCHETES;
+    producoes[7].q[8] = SENAO;
+    producoes[7].n = 9;
+
+    producoes[8].p = COMANDO;
+    producoes[8].q = (int*) malloc(11*sizeof(int));
+    producoes[8].q[0] = FOR;
+    producoes[8].q[1] = ID;
+    producoes[8].q[2] = INDEX;
+    producoes[8].q[3] = FROM;
+    producoes[8].q[4] = EXPARIT;
+    producoes[8].q[5] = TO;
+    producoes[8].q[6] = EXPARIT;
+    producoes[8].q[7] = DO;
+    producoes[8].q[8] = OPENCOLCHETES;
+    producoes[8].q[9] = COMANDOS;
+    producoes[8].q[10] = CLOSECOLCHETES;
+    producoes[8].n = 11;
+
+    producoes[9].p = COMANDO;
+    producoes[9].q = (int*) malloc(9*sizeof(int));
+    producoes[9].q[0] = FOREACH;
+    producoes[9].q[1] = ID;
+    producoes[9].q[2] = INDEX;
+    producoes[9].q[3] = IN;
+    producoes[9].q[4] = ID;
+    producoes[9].q[5] = DO;
+    producoes[9].q[6] = OPENCOLCHETES;
+    producoes[9].q[7] = COMANDOS;
+    producoes[9].q[8] = CLOSECOLCHETES;
+    producoes[9].n = 9;
+
+    producoes[10].p = COMANDO;
+    producoes[10].q = (int*) malloc(4*sizeof(int));
+    producoes[10].q[0] = READ;
+    producoes[10].q[1] = ID;
+    producoes[10].q[2] = INDEX;
+    producoes[10].q[3] = DOT;
+    producoes[10].n = 4;
+
+    producoes[11].p = COMANDO;
+    producoes[11].q = (int*) malloc(3*sizeof(int));
+    producoes[11].q[0] = PRINT;
+    producoes[11].q[1] = IMPRIMIVEL;
+    producoes[11].q[2] = DOT;
+    producoes[11].n = 3;
+
+    producoes[12].p = LISTAIDS;
+    producoes[12].q = (int*) malloc(4*sizeof(int));
+    producoes[12].q[0] = ID;
+    producoes[12].q[1] = NINDEX;
+    producoes[12].q[2] = COMMA;
+    producoes[12].q[3] = LISTAIDS;
+    producoes[12].n = 4;
+
+    producoes[13].p = LISTAIDS;
+    producoes[13].q = (int*) malloc(2*sizeof(int));
+    producoes[13].q[0] = ID;
+    producoes[13].q[1] = NINDEX;
+    producoes[13].n = 2;
+
+    producoes[14].p = NINDEX;
+    producoes[14].q = (int*) malloc(2*sizeof(int));
+    producoes[14].q[0] = OPENCOLCHETES;
+    producoes[14].q[1] = CLOSECOLCHETES;
+    producoes[14].n = 2;
+
+    producoes[15].p = NINDEX;
+    producoes[15].q = (int*) malloc(1*sizeof(int));
+    producoes[15].q[0] = VAZIO;
+    producoes[15].n = 0;
+
+    producoes[16].p = INDEX;
+    producoes[16].q = (int*) malloc(3*sizeof(int));
+    producoes[16].q[0] = OPENCOLCHETES;
+    producoes[16].q[1] = EXPARIT;
+    producoes[16].q[2] = CLOSECOLCHETES;
+    producoes[16].n = 3;
+
+    producoes[17].p = INDEX;
+    producoes[17].q = (int*) malloc(1*sizeof(int));
+    producoes[17].q[0] = VAZIO;
+    producoes[17].n = 0;
+
+    producoes[18].p = TIPO;
+    producoes[18].q = (int*) malloc(1*sizeof(int));
+    producoes[18].q[0] = NUMBER;
+    producoes[18].n = 1;
+
+    producoes[19].p = TIPO;
+    producoes[19].q = (int*) malloc(1*sizeof(int));
+    producoes[19].q[0] = LETTER;
+    producoes[19].n = 1;
+
+    producoes[20].p = EXPARIT;
+    producoes[20].q = (int*) malloc(3*sizeof(int));
+    producoes[20].q[0] = EXPARIT;
+    producoes[20].q[1] = PLUS;
+    producoes[20].q[2] = T;
+    producoes[20].n = 3;
+
+    producoes[21].p = EXPARIT;
+    producoes[21].q = (int*) malloc(3*sizeof(int));
+    producoes[21].q[0] = EXPARIT;
+    producoes[21].q[1] = MINUS;
+    producoes[21].q[2] = T;
+    producoes[21].n = 3;
+
+
+    producoes[22].p = EXPARIT;
+    producoes[22].q = (int*) malloc(1*sizeof(int));
+    producoes[22].q[0] = EXPARIT;
+    producoes[22].q[1] = T;
+    producoes[22].n = 2;
+
+    producoes[23].p = T;
+    producoes[23].q = (int*) malloc(3*sizeof(int));
+    producoes[23].q[0] = T;
+    producoes[23].q[1] = TIMES;
+    producoes[23].q[2] = F;
+    producoes[23].n = 3;
+
+    producoes[24].p = T;
+    producoes[24].q = (int*) malloc(3*sizeof(int));
+    producoes[24].q[0] = T;
+    producoes[24].q[1] = DIVIDE;
+    producoes[24].q[2] = F;
+    producoes[24].n = 3;
+
+    producoes[25].p = T;
+    producoes[25].q = (int*) malloc(3*sizeof(int));
+    producoes[25].q[0] = T;
+    producoes[25].q[1] = MOD;
+    producoes[25].q[2] = F;
+    producoes[25].n = 3;
+
+    producoes[26].p = F;
+    producoes[26].q = (int*) malloc(3*sizeof(int));
+    producoes[26].q[0] = OPENPARENTESES;
+    producoes[26].q[1] = E;
+    producoes[26].q[2] = CLOSEPARENTESES;
+    producoes[26].n = 3;
+
+    producoes[27].p = F;
+    producoes[27].q = (int*) malloc(4*sizeof(int));
+    producoes[27].q[0] = MINUS;
+    producoes[27].q[1] = OPENPARENTESES;
+    producoes[27].q[2] = E;
+    producoes[27].q[3] = CLOSEPARENTESES;
+    producoes[27].n = 4;
+
+    producoes[28].p = F;
+    producoes[28].q = (int*) malloc(2*sizeof(int));
+    producoes[28].q[0] = ID;
+    producoes[28].q[1] = INDEX;
+    producoes[28].n = 2;
+
+    producoes[29].p = F;
+    producoes[29].q = (int*) malloc(3*sizeof(int));
+    producoes[29].q[0] = MINUS;
+    producoes[29].q[1] = ID;
+    producoes[29].q[2] = INDEX;
+    producoes[29].n = 3;
+
+    producoes[30].p = F;
+    producoes[30].q = (int*) malloc(sizeof(int));
+    producoes[30].q[0] = CONSTNUM;
+    producoes[30].n = 1;
+
+    producoes[31].p = F;
+    producoes[31].q = (int*) malloc(2*sizeof(int));
+    producoes[31].q[0] = MINUS;
+    producoes[31].q[1] = CONSTNUM;
+    producoes[31].n = 2;
+
+    producoes[32].p = F;
+    producoes[32].q = (int*) malloc(sizeof(int));
+    producoes[32].q[0] = CONSTCHAR;
+    producoes[32].n = 1;
+
+    producoes[33].p = F;
+    producoes[33].q = (int*) malloc(2*sizeof(int));
+    producoes[33].q[0] = MINUS;
+    producoes[33].q[1] = CONSTCHAR;
+    producoes[33].n = 2;
+
+    producoes[34].p = PUTAVEL;
+    producoes[34].q = (int*) malloc(sizeof(int));
+    producoes[34].q[0] = EXPARIT;
+    producoes[34].n = 1;
+
+    producoes[35].p = PUTAVEL;
+    producoes[35].q = (int*) malloc(sizeof(int));
+    producoes[35].q[0] = CONSTSTRING;
+    producoes[35].n = 1;
+
+    producoes[36].p = SENAO;
+    producoes[36].q = (int*) malloc(4*sizeof(int));
+    producoes[36].q[0] = ELSE;
+    producoes[36].q[1] = OPENCOLCHETES;
+    producoes[36].q[2] = COMANDOS;
+    producoes[36].q[3] = CLOSECOLCHETES;
+    producoes[36].n = 4;
+
+    producoes[37].p = SENAO;
+    producoes[37].q = (int*) malloc(sizeof(int));
+    producoes[37].q[0] = VAZIO;
+    producoes[37].n = 0;
+
+    producoes[38].p = OPRREL;
+    producoes[38].q = (int*) malloc(sizeof(int));
+    producoes[38].q[0] = LESSTHAN;
+    producoes[38].n = 1;
+
+    producoes[39].p = OPRREL;
+    producoes[39].q = (int*) malloc(sizeof(int));
+    producoes[39].q[0] = GREATERTHAN;
+    producoes[39].n = 1;
+
+    producoes[40].p = OPRREL;
+    producoes[40].q = (int*) malloc(sizeof(int));
+    producoes[40].q[0] = LESSEQUALTHAN;
+    producoes[40].n = 1;
+
+    producoes[41].p = OPRREL;
+    producoes[41].q = (int*) malloc(sizeof(int));
+    producoes[41].q[0] = GREATEREQUALTHAN;
+    producoes[41].n = 1;
+
+    producoes[42].p = OPRREL;
+    producoes[42].q = (int*) malloc(sizeof(int));
+    producoes[42].q[0] = EQUAL;
+    producoes[42].n = 1;
+
+    producoes[43].p = OPRREL;
+    producoes[43].q = (int*) malloc(sizeof(int));
+    producoes[43].q[0] = DIFERENT;
+    producoes[43].n = 1;
+
+    producoes[44].p = IMPRIMIVEL;
+    producoes[44].q = (int*) malloc(2*sizeof(int));
+    producoes[44].q[0] = ID;
+    producoes[44].q[1] = INDEX;
+    producoes[44].n = 2;
+
+    producoes[45].p = IMPRIMIVEL;
+    producoes[45].q = (int*) malloc(sizeof(int));
+    producoes[45].q[0] = CONSTNUM;
+    producoes[45].n = 1;
+
+    producoes[46].p = IMPRIMIVEL;
+    producoes[46].q = (int*) malloc(sizeof(int));
+    producoes[46].q[0] = CONSTCHAR;
+    producoes[46].n = 1;
+
+    producoes[47].p = IMPRIMIVEL;
+    producoes[47].q = (int*) malloc(sizeof(int));
+    producoes[47].q[0] = CONSTSTRING;
+    producoes[47].n = 1;
+
+
+    printf("%d\n%d\n%d\n", producoes[0].p, producoes[0].q[0], producoes[0].n);
 
     char *entrada;
 
