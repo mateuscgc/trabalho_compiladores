@@ -1,2 +1,2 @@
 all:
-	gcc compilador.c
+	gcc compilador.c -o slr1

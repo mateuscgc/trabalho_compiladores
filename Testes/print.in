@@ -1,0 +1,5 @@
+print c.
+print d [a*-5].
+print "alo".
+print 20.
+print '\n'.
