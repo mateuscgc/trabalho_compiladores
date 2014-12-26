@@ -44,6 +44,13 @@ typedef struct producao {
     int n // número de simbolos depois da
 } prod;
 
+typedef struct slistaVar {
+    char * stringVal;
+    int vetor;
+    int alocado;
+    token tipo;
+    struct slistaVar *prox;
+} noListaVar, *listaVar;
 
 static int erroL = 0;
 // ============================================================================
@@ -1699,10 +1706,179 @@ tabela[111][RESIZE] = -37;
             // printf("Empilhado na entrada: %d\n", x->token);
         } else if(acao == 0){
             printf("NAO\n");
-            break;
+            return 0;
         }
         // printf("================================\n");
     }
 
+    listaVar v;
+    inicializar(&v);
+
+    if (semantica(l, &v))
+        printf("SIM\n");
+    else
+        printf("NAO\n");
+
     return 0;
+}
+
+int declarada(char *n, listaVar v) {
+    listaVar p;
+    for (p = n; p && !compareString(n, p->stringVal); p->prox);
+    if (p)
+        return 1;
+    return 0;
+}
+int ehVetor(char *n, listaVar v) {
+    if (declarada(n, listaVar v)) {
+        for (p = n; p && !compareString(n, p->stringVal); p->prox);
+        if (p && p->vetor)
+            return 1;
+        return 0;
+    }
+}
+int alocado(char *n, listaVar v) {
+    if (declarada(n, listaVar v)) {
+        for (p = n; p && !compareString(n, p->stringVal); p->prox);
+        if (p && p->alocado)
+            return 1;
+        return 0;
+    }
+}
+
+void declara(char *n, token tipo,listaVar v, int vetor) {
+    listaVar aux;
+    aux = (noListaVar*) malloc (sizeof(noListaVar));
+    aux.stringVal = n;
+    aux.vetor = vetor;
+    aux.alocado = 0;
+    aux.tipo = tipo;
+    aux.prox = NULL;
+
+    listaVar p;
+    listaVar pant;
+
+    for (pant = NULL p = v; p; p->prox);
+    if (p == v)
+        v = aux;
+    else
+        pant->prox = aux;
+}
+
+void resize(char *n, listaVar v) {
+    if (ehVetor(n, listaVar v)) {
+        for (p = n; p && !compareString(n, p->stringVal); p->prox);
+        p->alocado = 1;
+    }
+}
+int tipoNum (char *n, listaVar v) {
+    for (p = n; p && !compareString(n, p->stringVal); p->prox);
+    if (p->tipo == NUMBER)
+        return 1;
+    return 0;
+}
+            copiaVar(v, &vE);
+void copiaVar(listaVar *v, listaVar * vE) {
+    listaVar p;
+    listaVar p2;
+    for (p2 = *v, p = *vE; p ; p = p->prox, p3 = p2, p2 = p2->prox){
+        listaVar aux;
+        aux = (noListaVar*) malloc (sizeof(noListaVar));
+        aux->stringVal = p->stringVal;
+        aux->vetor = p->vetor;
+        aux->alocado = p->alocado;
+        aux->tipo = p->tipo;
+        aux->prox = NULL;
+        p2 = aux;
+    }
+}
+
+
+listaToken semantica(listaToken l, listaVar *v){ // Eh chamada a cada novo escopo
+    listaToken p;
+    for (p = l; p != NULL; p = p->prox) {
+
+        if (p->tokenVal == CLOSECOLCHETES) {
+            if (p->prox->tokenVal == DECLARE
+                || p->prox->tokenVal == RESIZE
+                || p->prox->tokenVal == PUT
+                || p->prox->tokenVal == IF
+                || p->prox->tokenVal == SENAO
+                || p->prox->tokenVal == FOR
+                || p->prox->tokenVal == FOREACH
+                || p->prox->tokenVal == READ
+                || p->prox->tokenVal == PRINT)
+                return p;
+        } else if (p->tokenVal == IF || p->tokenVal == SENAO || p->tokenVal == FOR || p->tokenVal == FOREACH) {
+            if (p->tokenVal == FOREACH){
+                if (!declarada(p->prox->stringVal, v)
+                    || (ehVetor(p->prox->stringVal, v) && !alocado(p->prox->stringVal))
+                    || (!ehVetor(p->prox->stringVal) p->prox->prox->tokenVal == OPENCOLCHETES)
+                    || (ehVetor(p->prox->stringVal) && p->prox->prox->tokenVal != OPENCOLCHETES))
+                    return NULL;
+                for (p = p->prox->prox; p->tokenVal != ID; p = p->prox);
+                if (!declarada(p->stringVal)
+                    || (!ehVetor(p->stringVal))
+                    || (ehVetor(p->stringVal) && !alocado(p->stringVal))
+                    || (p->prox->tokenVal == OPENCOLCHETES))
+                    return NULL; 
+            }
+            listaVar vE;
+            copiaVar(v, &vE);
+            p = semantica(p->prox, &vE);
+            if (!p)
+                return NULL;
+        } else if (p->tokenVal == DECLARE) {
+            listaToken aux;
+            for (aux = p->prox; aux->tokenVal != NUMBER  && aux->tokenVal != LETTER; aux = aux->prox);
+            for (; p->tokenVal != AS; p = p->prox){
+                if (p->tokenVal == ID) {
+                    if (declarada(p->stringVal)){
+                        return NULL;
+                    } else {
+                        int vetor = p->prox->tokenVal == OPENCOLCHETES ? 1 : 0;
+                        declara(p->stringVal, aux->tokenVal, v, vetor);
+                    }
+                }
+            }
+        } else if (p->tokenVal == RESIZE) {
+            if (!declarada(p->prox->stringVal) || !ehVetor(p->prox->stringVal)){
+                return NULL;
+            } else {
+                resize(p->prox->stringVal, v);
+            }
+        } else if (p->tokenVal == PUT) {
+            listaToken aux;
+            for (aux = p->prox; aux->tokenVal != IN; aux = aux->prox);
+            aux = aux->prox;
+            if (!declarada(aux->stringVal)
+                || (ehVetor(aux->stringVal) && !alocado(aux->stringVal))
+                || (ehVetor(aux->stringVal) && tipoNum(aux->stringVal) && aux->prox->tokenVal != OPENCOLCHETES)
+                || (!ehVetor(aux->stringVal) aux->prox->tokenVal == OPENCOLCHETES)
+                || (p->prox->tokenVal == CONSTSTRING && tipoNum(aux->stringVal)))
+                return NULL;
+            p = aux->prox;
+        } else if (p->tokenVal == READ) {
+            if (!declarada(p->prox->stringVal)
+                || (ehVetor(p->prox->stringVal) && !alocado(p->prox->stringVal))
+                || (!ehVetor(p->prox->stringVal) p->prox->prox->tokenVal == OPENCOLCHETES))
+                return NULL;
+            p = p->prox->prox;
+        } else if (p->tokenVal == READ) {
+            if (p->prox->tokenVal == ID) {
+                if (!declarada(p->prox->stringVal)
+                    || (ehVetor(p->prox->stringVal) && !alocado(p->prox->stringVal))
+                    || (!ehVetor(p->prox->stringVal) p->prox->prox->tokenVal == OPENCOLCHETES))
+                    return NULL;
+            }
+            p = p->prox->prox;
+        } else if (p->tokenVal == ID) {
+            if (!declarada(p->prox->stringVal)
+                || (ehVetor(p->prox->stringVal) && !alocado(p->prox->stringVal))
+                || (!ehVetor(p->prox->stringVal) p->prox->prox->tokenVal == OPENCOLCHETES)
+                || (ehVetor(p->prox->stringVal) && p->prox->prox->tokenVal != OPENCOLCHETES))
+                return NULL;
+        }
+    }
+    return l;
 }
