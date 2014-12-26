@@ -13,7 +13,7 @@ typedef enum {
    OPENCOLCHETES = 19, CLOSECOLCHETES = 20, PLUS = 21, MINUS = 22, TIMES = 23, DIVIDE = 24, MOD = 25,
    OPENPARENTESES = 26, CLOSEPARENTESES = 27, LESSTHAN = 28, GREATERTHAN = 29, LESSEQUALTHAN = 30,
    GREATEREQUALTHAN = 31, EQUAL = 32, DIFERENT = 33, ID = 34, CONSTNUM = 35, CONSTCHAR = 36, CONSTSTRING = 37,
-   
+
    //Não terminais
    SS = 38, S = 39, $ = 40, COMANDOS = 41, COMANDO = 42, VAZIO = 43, LISTAIDS = 44, TIPO = 45, EXPARIT = 46,
    T = 47, F = 48, SENAO = 49, OPRREL = 50, ESCRITA = 51, PUTAVEL = 52, INDEX = 53, IMPRIMIVEL = 54,
@@ -60,7 +60,7 @@ _Bool formString(char *e, char **s, int i, int f){
     if(!((*s) = (char*) malloc(length + 1)))
         return false;
     for (j = 0; j < length; j++)
-        (*s)[j] = e[i+j]; 
+        (*s)[j] = e[i+j];
     (*s)[j] = 0;
     return true;
 }
@@ -96,7 +96,7 @@ void imprimeLista(listaToken *l){
 _Bool compareString(char *s1, char *s2) {
     int i;
     for (i = 0; s2[i] != 0; i++){
-        if(toupper(s1[i]) != toupper(s2[i])) 
+        if(toupper(s1[i]) != toupper(s2[i]))
             return false;
     }
     if (s1[i] != 0)
@@ -116,7 +116,7 @@ void salvaTokenIdentificador(char *e, int i , int f, listaToken *l){
             else if (compareString(stringVal, "TO"))       { while(!inseriToken(l, TO, stringVal));}
             else                                        { while(!inseriToken(l, ID, stringVal));}
         break;
-        case 3: 
+        case 3:
             if      (compareString(stringVal, "PUT"))      { while(!inseriToken(l, PUT, stringVal));}
             else if (compareString(stringVal, "FOR"))      { while(!inseriToken(l, FOR, stringVal));}
             else                                        { while(!inseriToken(l, ID, stringVal));}
@@ -146,7 +146,7 @@ void salvaTokenIdentificador(char *e, int i , int f, listaToken *l){
         break;
         default :
             while(!inseriToken(l, ID, stringVal));
-    } 
+    }
 }
 
 void salvaTokenSeparadorUnico(char e, listaToken *l){
@@ -218,7 +218,7 @@ _Bool topoToken (pilhaToken p, pilhaToken *x){
 long getFileSize(FILE *file) {
     long pos = ftell(file);
     long size;
-    
+
     fseek(file, 0, SEEK_END);
     size = ftell(file);
     fseek(file, pos, SEEK_SET);
@@ -314,7 +314,7 @@ int checkConstChar(char *e,int pos, int l, listaToken*lista){
 	if(e[aux] != '\'' || len >= 3){
         if(e[aux] != 0 && e[aux] != '\t' && e[aux] != '\n')
             printErroLexico(e, pos, aux, l);
-        else 
+        else
             printErroLexico(e, pos, aux-1, l);
 	} else if(len == 2) {
         if (e[aux-1] == 't' || e[aux-1] == 'T' || e[aux-1] == 'n' || e[aux-1] == 'N' || e[aux-1] == '\\' || e[aux-1] == '\'' || e[aux-1] == '\"') {
@@ -1247,7 +1247,7 @@ tabela[111][RESIZE] = -37;
 
     //PRODUÇÕES
     prod reducoes[49];
-    
+
     reducoes[0].p = SS;
     reducoes[0].q = (int*) malloc(2*sizeof(int));
     reducoes[0].q[0] = S;
@@ -1652,10 +1652,10 @@ tabela[111][RESIZE] = -37;
     pilhaToken pTrabalho;
     inicializaPilhaToken(&pEntrada);
     inicializaPilhaToken(&pTrabalho);
-    
+
     listaToken p;
     listaToken pant;
-    
+
     while(!(empilhaToken(&pEntrada, $, -1)));
     for (p = l, pant = NULL; (p); pant = p, p = p->prox);
     for (;(pant); pant = pant->ant) {
